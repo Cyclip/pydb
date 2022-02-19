@@ -2,17 +2,16 @@
 
 import sys
 
+import server
+
 # ---------- CONSTANTS ----------
 
 # -------------------------------
 
 
 def main():
-	"""Main function."""
-	print("Hello world!")
+	"""Start server"""
 	
-	# Success
-	return 0
 
 
 if __name__ == "__main__":
