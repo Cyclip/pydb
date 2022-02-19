@@ -141,3 +141,4 @@ cython_debug/
 
 # other
 test_*.py
+src/pydb/.creds
