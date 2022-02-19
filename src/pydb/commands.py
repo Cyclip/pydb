@@ -7,10 +7,6 @@ COMMANDS = [
     "dropTable",
 ]
 
-async def getCommand(cmd):
-    cmd = json.loads(cmd)
-
+async def verifyCommand(cmd):
     if cmd['command'] not in COMMANDS:
         raise UnknownCommand
-
-    return cmd
