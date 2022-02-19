@@ -28,7 +28,7 @@ def hashPw(pw):
 
 def getCreds():
     try:
-        with open(".creds", "r") as f:
+        with open("database/.creds", "r") as f:
             content = f.read().replace("\r", "").split("\n")
             
             if content == DEFAULT_CREDS:
@@ -36,8 +36,7 @@ def getCreds():
     except FileNotFoundError:
         warnings.warn(".creds file does not exist, using default creds")
 
-        with open(".creds", "w") as f:
-            f.write("\n".join(DEFAULT_CREDS))
+        createDefaultCreds()
         
         return getCreds()
 
@@ -45,6 +44,10 @@ def getCreds():
         raise BadFormat(".creds must have 2 lines")
     
     return content
+
+def createDefaultCreds():
+    with open("database/.creds", "w") as f:
+        f.write("\n".join(DEFAULT_CREDS))
 
 
 DEFAULT_CREDS = ["admin", hashPw("changeme")]

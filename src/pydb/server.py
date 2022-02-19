@@ -146,7 +146,7 @@ async def handleAuthorise(websocket, msg):
         ))
 
 async def main():
-    async with websockets.serve(handle, "localhost", 2000):
+    async with websockets.serve(handle, ip, port):
         # run forever
         await asyncio.Future()
 
@@ -154,4 +154,5 @@ async def main():
 activeConnections = ActiveConnections()
 dbUsername, dbPassword = creds.getCreds()
 
-asyncio.run(main())
+def start(ip, port):
+    asyncio.run(main(ip, port))
