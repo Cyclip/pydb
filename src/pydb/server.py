@@ -6,7 +6,46 @@ import traceback
 import commands
 from exceptions import *
 
-activeConnections = []
+class ActiveConnections:
+    def __init__(self):
+        self.conns = {}
+    
+    def addConn(self, websocket, loggedIn=False, expires=None):
+        if loggedIn and expires is not None:
+            data = {
+                "loggedIn": True,
+                "expires": expires,
+            }
+        else:
+            data = {
+                "loggedIn": False,
+                "expires": None,
+            }
+        
+        self.conns[websocket.id] = data
+    
+    def isConn(self, websocket):
+        return websocket.id in list(self.conns.keys())
+    
+    def removeConn(self, websocket):
+        del self.conns[websocket.id]
+    
+    def isLoggedIn(self, websocket):
+        self.updateExpired(websocket)
+        return self.conns[websocket.id]['loggedIn']
+    
+    def authoriseConnection(self, websocket):
+        self.conns[websocket.id] = {
+            "loggedIn": True,
+        }
+    
+    def deauthoriseConnection(self, websocket):
+        self.conns[websocket.id] = {
+            "loggedIn": False,
+        }
+
+
+activeConnections = ActiveConnections()
 
 def makeResponse(respType, message):
     return json.dumps({
@@ -16,6 +55,11 @@ def makeResponse(respType, message):
 
 
 async def keepAlive(websocket):
+    """Keep a certain websocket alive
+
+    Args:
+        websocket (WebSocketServerProtocol): Websocket in question
+    """
     global activeConnections
 
     while True:
@@ -24,11 +68,10 @@ async def keepAlive(websocket):
             await test
         except websockets.exceptions.ConnectionClosed:
             # client disconnected
-            activeConnections.remove(websocket.id)
-            print("client disconnected")
+            activeConnections.removeConn(websocket)
             break
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(15)
 
 
 async def handle(websocket):
@@ -40,11 +83,8 @@ async def handle(websocket):
         try:
             # build a command
 
-            if websocket.id in activeConnections:
-                print("already in")
-            else:
-                activeConnections.append(websocket.id)
-                print("appended:", activeConnections)
+            if not activeConnections.isConn(websocket):
+                activeConnections.addConn(websocket)
 
             try:
                 cmd = await commands.getCommand(msg)
@@ -67,7 +107,7 @@ async def handle(websocket):
                 )
         except websockets.exceptions.ConnectionClosed:
             # client disconnected
-            activeConnections.remove(websocket.id)
+            activeConnections.removeConn(websocket)
 
 
 async def main():
