@@ -3,6 +3,11 @@ import warnings
 
 from exceptions import *
 
+def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
+    return '%s:%s: %s: %s\n' % (filename, lineno, category.__name__, message)
+
+warnings.formatwarning = warning_on_one_line
+
 def hashPw(pw):
     """Hash a password
 
@@ -27,7 +32,7 @@ def getCreds():
             content = f.read().replace("\r", "").split("\n")
             
             if content == DEFAULT_CREDS:
-                warnings.warn("using default credentials\nUsername: admin\nPassword: changeme")
+                warnings.warn("using default credentials.\nUsername: admin\nPassword: changeme")
     except FileNotFoundError:
         warnings.warn(".creds file does not exist, using default creds")
 
